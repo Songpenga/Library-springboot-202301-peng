@@ -22,6 +22,8 @@ class RegisterApi{
             datatype: "json",
             success: response => {
                 console.log(response);
+                alert("회원가입 완료. 로그인 페이지로 이동합니다.");
+                location.replace("/account/login")
             },
             error: error => {
                 console.log(error);
@@ -82,8 +84,10 @@ class RegisterEvent{
         registerSubmit.onclick = () => {
             const usernameValue = document.querySelectorAll(".register-inputs")[0].value;
             const passwordValue = document.querySelectorAll(".register-inputs")[1].value;
+            const repasswordValue = document.querySelectorAll(".register-inputs")[2].value;
             const nameValue = document.querySelectorAll(".register-inputs")[3].value;
             const emailValue = document.querySelectorAll(".register-inputs")[4].value;
+            
 
             const user = new User(usernameValue, passwordValue, nameValue, emailValue);
 
@@ -95,12 +99,14 @@ class RegisterEvent{
 class user{
     username = null;
     password = null;
+    repassword = null;
     name = null;
     email = null;
 
-    constructor(username, password, name, email){
+    constructor(username, password, passwordm, name, email){
         this.username = username;
         this.password = password;
+        this.repassword = repassword;
         this.name = name;
         this.email = email;
     }

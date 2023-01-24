@@ -1,15 +1,39 @@
 package com.korit.library.service;
 
+import com.korit.library.AccountRepository;
 import com.korit.library.exception.CustomValidationException;
+import com.korit.library.web.dto.UserDto;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.Map;
 
+@Slf4j
 @Service
 public class AccountService {
 
-    public  void duplicateUsername(String username){}
+    @Autowired
+    private AccountRepository accoountRepositiry;
+
+    public UserMst registerUser(UserMst userMst) {
+        userMst.setPassword(new BCryptPasswordEncoder().encode(userMst.getPassword()));
+        accountRepository.saveUser(userMst);
+        accountRepository.saveRole(userMst);
+        return userMst;
+    }
+
+    public void duplicateUsername(String username){
+        UserDto user = accoountRepositiry.findUserByUsername(username);
+        if(user != null){
+            Map<String, String> errorMap = new HashMap<>();
+            errorMap.put("username", "이미 존재하는 사용자이름 입니다.");
+
+            throw new CustomValidationException(errorMap);
+        }
+    }
 
     public void conpareToPassword(String password, String repassword){
         if(!password.equals(repassword)){
@@ -19,4 +43,9 @@ public class AccountService {
             throw new CustomValidationException(errorMap);
         }
     }
+
+    public UserDto getUser(int userId){
+        return accoountRepositiry.findUserByUserId(userId);
+    }
+
 }
