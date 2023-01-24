@@ -1,14 +1,16 @@
 package com.korit.library.web.api;
 
 import com.korit.library.aop.annotation.ValidAspect;
-import com.korit.library.service.AccountService;
 import com.korit.library.web.dto.CMRespDto;
+import com.korit.library.security.PrincipalDetails;
+import com.korit.library.service.AccountService;
 import com.korit.library.web.dto.UserDto;
 import io.swagger.annotations.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,12 +29,12 @@ public class AccountApi {
     @ApiOperation(value = "회원가입", notes = "회원가입 요청 메소드")
     @ValidAspect
     @PostMapping("/register")
-    public ResponseEntity<? extends CMRespDto<? extends UserMst>> register(@RequestBody @Valid UserMst userMst, BindingResult bindingResult) {
+    public ResponseEntity<? extends CMRespDto<? extends UserDto>> register(@RequestBody @Valid UserDto userDto, BindingResult bindingResult) {
 
-        accountService.duplicateUsername(userMst.getUsername());
-        accountService.conpareToPassword(userMst.getPassword(), userMst.getPassword());
+        accountService.duplicateUsername(userDto.getUsername());
+        accountService.compareToPassword(userDto.getPassword(), userDto.getPassword());
 
-        UserDto user = accountService.registerUser(userMst);
+        UserDto user = accountService.registerUser(userDto);
 
         return ResponseEntity
                 .created(URI.create("/api/account/user/" + user.getUserId()))
@@ -48,7 +50,7 @@ public class AccountApi {
     })
 
     @GetMapping("/user/{userId}")
-    public ResponseEntity<? extends CMRespDto<? extends UserMst>> getUser(
+    public ResponseEntity<? extends CMRespDto<? extends UserDto>> getUser(
             @PathVariable int userId) {
         return ResponseEntity
                 .ok()
@@ -58,12 +60,13 @@ public class AccountApi {
     @ApiOperation(value = "Get principal", notes = "로그인된 사용자 정보 가져오기")
     @GetMapping("/principal")
     public ResponseEntity<CMRespDto<? extends PrincipalDetails>> getPrincipalDetails(@ApiParam(name = "principalDetails", hidden = true) @AuthenticationPrincipal PrincipalDetails principalDetails) {
-        principalDetails.getAuthorities().foreach(role -> {
+
+        principalDetails.getAuthorities().forEach(role -> {
             log.info("로그인된 사용자의 권한 : {}", role.getAuthority());
         });
 
         return ResponseEntity
                 .ok()
-                .body(new CMRespDto<HttpStatus.OK.value(), "Success", principalDetails));
+                .body(new CMRespDto<>(HttpStatus.OK.value(), "Success", principalDetails));
     }
 }

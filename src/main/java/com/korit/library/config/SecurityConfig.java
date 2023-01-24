@@ -8,6 +8,7 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 @EnableMethodSecurity
@@ -22,26 +23,37 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     public void configure(WebSecurity web) throws Exception {
         web.ignoring()
-                .requestMatchers(PathRequest.toStaticResources().atCommonLocations());
+                .antMatchers("/static/**");
+                //.requestMatchers(PathRequest.toStaticResources().atCommonLocations());
     }
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.csrf().disable();
         http.httpBasic().disable();
-        http.authorizeRequests()
-                .antMatchers("/mypage/**", "/security/**")
-                .authenticated()
-                .antMatchers("/admin**")
-                .hasRole("ADMIN") // ROLE_ADMIN, ROLE_MANAGER
-                .anyRequest()
-                .permitAll()
-                .and()
-                .formLogin()
-                .loginPage("/account/login") // 로그인 페이지 get요청
-                .loginProcessingUrl("/account/login") // 로그인 인증 post 요청
-                .failureForwardUrl("/account/login/error") //
-                .defaultSuccessUrl("/index");
+        http.formLogin().disable();
+//                .loginPage("/account/login") // 로그인 페이지 get요청
+//                .loginProcessingUrl("/account/login") // 로그인 인증 post 요청
+//                .failureForwardUrl("/account/login/error")
+//                .defaultSuccessUrl("/index");
+        /* 401, 403 예외 핸들링 */
+        http.exceptionHandling()
+                .authenticationEntryPoint(null)
+                .accessDeniedHandler(null);
 
+        /* 세션 사용 제한 */
+        http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+
+        http.authorizeRequests()
+                .antMatchers("/account/login", "/account/register")
+                .permitAll()
+                .antMatchers("/admin/**")
+                .hasRole("ADMIN")// ROLE_ADMIN, ROLE_MANAGER
+                .anyRequest()
+                .authenticated();
+
+        http.apply(null)
+                .and()
+                .build();
     }
 }

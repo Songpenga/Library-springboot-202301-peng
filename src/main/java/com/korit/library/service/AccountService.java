@@ -18,11 +18,11 @@ public class AccountService {
     @Autowired
     private AccountRepository accoountRepositiry;
 
-    public UserMst registerUser(UserMst userMst) {
-        userMst.setPassword(new BCryptPasswordEncoder().encode(userMst.getPassword()));
-        accountRepository.saveUser(userMst);
-        accountRepository.saveRole(userMst);
-        return userMst;
+    public UserDto registerUser(UserDto userDto) {
+        userDto.setPassword(new BCryptPasswordEncoder().encode(userDto.getPassword()));
+        accoountRepositiry.saveUser(userDto);
+        accoountRepositiry.saveRole(userDto);
+        return userDto;
     }
 
     public void duplicateUsername(String username){
@@ -35,7 +35,7 @@ public class AccountService {
         }
     }
 
-    public void conpareToPassword(String password, String repassword){
+    public void compareToPassword(String password, String repassword){
         if(!password.equals(repassword)){
             Map<String, String> errorMap = new HashMap<>();
             errorMap.put("repassword", "비밀번호가 일치하지 않습니다");
