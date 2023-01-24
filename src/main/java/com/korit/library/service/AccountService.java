@@ -1,6 +1,6 @@
 package com.korit.library.service;
 
-import com.korit.library.AccountRepository;
+import com.korit.library.repository.AccountRepository;
 import com.korit.library.exception.CustomValidationException;
 import com.korit.library.web.dto.UserDto;
 import lombok.extern.slf4j.Slf4j;

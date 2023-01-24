@@ -42,8 +42,10 @@ public class UserDto {
 
     @ApiModelProperty(hidden = true)
     private LocalDateTime createDate;
+
     @ApiModelProperty(hidden = true)
     private LocalDateTime updateDate;
 
     @ApiModelProperty(hidden = true)
     private List<RoleDtlDto> roleDtlDto;
+}

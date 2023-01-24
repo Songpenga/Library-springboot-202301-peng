@@ -9,8 +9,10 @@ import javax.validation.constraints.NotBlank;
 public class SearchReqDto {
     @ApiModelProperty(value = "검색어", required = false, example = "나는")
     private String searchValue;
+
     @ApiModelProperty(value = "카테고리", required = false, example = "소설")
     private String category;
+
     @ApiModelProperty(value = "정렬", required = false, example = "bookName")
     private String order;
 
@@ -20,6 +22,7 @@ public class SearchReqDto {
 
     @ApiModelProperty(value = "페이지번호", required = false, example = "1")
     private int page;
+
     @ApiModelProperty(value = "게시글 개수", required = false, example = "20")
     private int count;
 
