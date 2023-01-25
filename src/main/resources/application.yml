@@ -17,4 +17,4 @@ mybatis:
     - /mappers/*.xml
 
 file:
-  path: C:\IT_Peng\web_2210\Library\upload
+  path: C:/IT_Peng/web_2210/Library/upload/
