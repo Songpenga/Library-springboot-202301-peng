@@ -12,13 +12,28 @@ public class ExceptionAdvice {
 
     @ExceptionHandler(CustomValidationException.class)
     public ResponseEntity<?> validationError(CustomValidationException e){
-        return ResponseEntity.badRequest().body(new CMRespDto<>(HttpStatus.BAD_REQUEST.value(), "Validation Error", e.getErrorsMap()));
+        return ResponseEntity
+                .badRequest()
+                .body(new CMRespDto<>(HttpStatus.BAD_REQUEST.value(),
+                        "Validation Error",
+                        e.getErrorsMap()));
     }
 
     @ExceptionHandler(CustomValidationException.class)
     public ResponseEntity<?> rentalError(CustomValidationException e){
         return ResponseEntity
                 .badRequest()
-                .body(new CMRespDto<>(HttpStatus.BAD_REQUEST.value(), "Rental Error", e.getErrorsMap()));
+                .body(new CMRespDto<>(HttpStatus.BAD_REQUEST.value(),
+                        "Rental Error",
+                        e.getErrorsMap()));
+    }
+
+    @ExceptionHandler(CustomValidationException.class)
+    public ResponseEntity<?> LikeError(CustomValidationException e){
+        return ResponseEntity
+                .badRequest()
+                .body(new CMRespDto<>(HttpStatus.BAD_REQUEST.value(),
+                        "Like Error",
+                        e.getErrorsMap()));
     }
 }

@@ -36,6 +36,11 @@ public class RentalService {
         rentalRepository.saveRentalDtl(rentalDtlList);
     }
 
+    public void returnBook(int bookId){
+        notAvailabilityLoan(bookId);
+        rentalRepository.updateReturnDate(bookId);
+    }
+
     private void availability(int userId) {
         int rentalCount = rentalRepository.rentalAvailability(userId);
         if(rentalCount > 2) {
@@ -50,6 +55,15 @@ public class RentalService {
         if(loanCount > 0) {
             Map<String, String> errorMap = new HashMap<>();
             errorMap.put("loanError", "현재 대여중인 도서입니다.");
+            throw new CustomValidationException(errorMap);
+        }
+    }
+
+    private void notAvailabilityLoan(int bookId){
+        int loanCount = rentalRepository.loanRental(bookId);
+        if(loanCount > 1) {
+            Map<String, String> errorMap = new HashMap<>();
+            errorMap.put("loanError", "대여중인 도서가 아닙니다..");
             throw new CustomValidationException(errorMap);
         }
     }

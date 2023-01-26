@@ -18,7 +18,7 @@ public class RoleDtl {
     private int userId;
     private int roleId;
 
-    private RoleDtl roleDtl;
+    private RoleMst roleMst;
 
     private LocalDateTime createDate;
     private LocalDateTime updateDate;
