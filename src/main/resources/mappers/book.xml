@@ -139,6 +139,18 @@
             book_code = #{bookCode}
     </delete>
 
+<!--도서 목록 리스트 삭제-->
+    <delete id="deleteBooks" parameterType="list">
+        delete
+        from
+        book_mst
+        where
+        book_id in
+        <foreach collection="list" item="bookId" open="(" close=")" separator=",">
+            #{bookId}
+        </foreach>
+    </delete>
+
     <insert id="registerBookImages" parameterType="list">
         insert into
             book_image

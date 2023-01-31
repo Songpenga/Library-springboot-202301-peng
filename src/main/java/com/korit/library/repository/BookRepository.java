@@ -35,10 +35,10 @@ public interface BookRepository {
     public int saveBook(BookReqDto bookReqDto);
 
     public int updateBookByBookCode(BookReqDto bookReqDto);
-
     public int maintainUpdateBookByBookCode(BookReqDto bookReqDto);
 
     public int deleteBook(String bookCode);
+    public int deleteBooks(List<Integer> userIds); // 도서 목록 리스트 삭제
 
     public int registerBookImages(List<BookImage> bookImages);
 
