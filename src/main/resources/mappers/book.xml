@@ -143,9 +143,9 @@
     <delete id="deleteBooks" parameterType="list">
         delete
         from
-        book_mst
+            book_mst
         where
-        book_id in
+            book_id in
         <foreach collection="list" item="bookId" open="(" close=")" separator=",">
             #{bookId}
         </foreach>
@@ -156,7 +156,7 @@
             book_image
         values
             <foreach collection="list" item="file" separator=",">
-                (0, #{file.bookCode}, #{file.saveName}, #{file.originName}),
+                (0, #{file.bookCode}, #{file.saveName}, #{file.originName})
             </foreach>
     </insert>
 
