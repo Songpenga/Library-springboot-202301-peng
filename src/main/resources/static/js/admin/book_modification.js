@@ -15,6 +15,15 @@ let searchObj = {
     count : 20
 }
 
+class BookModifu {
+    static #instance = null;
+    static getInstance() {
+        if(this.#instance == null) {
+            this.#instance = new BookService();
+        }
+        return this.#instance;
+    }
+}
 class BookSearchApi {
     static #instance = null;
     static getInstance() {

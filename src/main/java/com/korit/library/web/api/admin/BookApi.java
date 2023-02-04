@@ -17,6 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Map;
 
 @Api(tags = {"관리자 도서관리 API"})
 @RequestMapping("/api/admin")
@@ -90,7 +91,7 @@ public class BookApi {
     }
 
     @ParamsAspect
-    @DeleteMapping("/books")
+    @DeleteMapping("/books") //도서목록 리스트 삭제
     public ResponseEntity<CMRespDto<?>> removeBooks(@RequestBody DeleteBooksReqDto deleteBooksReqDto) {
         bookService.removeBooks(deleteBooksReqDto);
         return ResponseEntity
