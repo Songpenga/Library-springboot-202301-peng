@@ -1,6 +1,8 @@
 window.onload = () => {
     BookService.getInstance().loadBookList();
     BookService.getInstance().loadCategories();
+    BookModifcationService.getInstance().loadBookAndImageData();
+
     ComponentEvent.getInstance().addClickEventSearchButton();
     ComponentEvent.getInstance().addClickEventDeleteButton();
     ComponentEvent.getInstance().addClickEventDeleteCheckAll();
@@ -15,13 +17,50 @@ let searchObj = {
     count : 20
 }
 
-class BookModifu {
+class BookModifcationApi {
     static #instance = null;
     static getInstance() {
         if(this.#instance == null) {
-            this.#instance = new BookService();
+            this.#instance = new BookModifcationApi();
         }
         return this.#instance;
+    }
+
+    setBookCode(){
+        const URLSearch = new URLSearchParams(location.search);
+        console.log(URLSearch)
+    }
+
+    getBookAndImage(){
+        let responseData = null;
+
+        $.ajax({
+            async: false,
+            type: "get",
+            url: `http//127.0.0.1:8000/api/admin/book/{$bookObj.bookCode}`,
+            data: "json",
+            success: response => {
+                responseData = response.data;
+            },
+            error: error =>{
+                console.log(error);
+            }
+        });
+        return responseData;
+    }
+
+    loadBookAndImageData(){
+        const responseData = BookModifcationApi.getInstance().getCategories();
+
+        const modificationInputs = document.querySelectorAll("modification-input");
+        modificationInputs[0].value = responseData.bookMst.bookCode;
+        modificationInputs[1].value = responseData.bookMst.bookName;
+        modificationInputs[2].value = responseData.bookMst.author;
+        modificationInputs[3].value = responseData.bookMst.publisher;
+        modificationInputs[4].value = responseData.bookMst.publicationDate;
+        modificationInputs[5].value = responseData.bookMst.category
+        
+        const bookImg = document.querySelector.getInstance().getCategories();
     }
 }
 class BookSearchApi {
@@ -54,6 +93,7 @@ class BookSearchApi {
         return returnData;
     }
 
+    removeI
     getBookTotalCount(searchObj) {
         let returnData = null;
 
