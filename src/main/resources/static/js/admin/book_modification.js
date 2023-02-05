@@ -1,125 +1,66 @@
 window.onload = () => {
-    BookService.getInstance().loadBookList();
-    BookService.getInstance().loadCategories();
-    BookModifcationService.getInstance().loadBookAndImageData();
+    BookModificationService.getInstance().setBookCode();
+    BookModificationService.getInstance().loadCategories();
+    BookModificationService.getInstance().loadBookAndImageData();
 
-    ComponentEvent.getInstance().addClickEventSearchButton();
-    ComponentEvent.getInstance().addClickEventDeleteButton();
-    ComponentEvent.getInstance().addClickEventDeleteCheckAll();
+    ComponentEvent.getInstance().addClickEventModificationButton();
+    ComponentEvent.getInstance().addClickEventImgAddButton();
+    ComponentEvent.getInstance().addChangeEventImgFile();
+    ComponentEvent.getInstance().addClickEventImgModificationButton();
+    ComponentEvent.getInstance().addClickEventImgCancelButton();
 }
 
-let searchObj = {
-    page : 1,
-    category : "",
-    searchValue : "",
-    order : "bookId",
-    limit : "Y",
-    count : 20
+const bookObj = {
+    bookCode: "",
+    bookName: "",
+    author: "",
+    publisher: "",
+    publicationDate: "",
+    category: ""
 }
 
-class BookModifcationApi {
+const imgObj = {
+    imageId: null,
+    bookCode: null,
+    saveName: null,
+    originName: null
+}
+
+const fileObj = {
+    files: new Array(),
+    formData: new FormData()
+}
+
+class BookModificationApi {
     static #instance = null;
     static getInstance() {
         if(this.#instance == null) {
-            this.#instance = new BookModifcationApi();
+            this.#instance = new BookModificationApi();
         }
         return this.#instance;
     }
 
-    setBookCode(){
-        const URLSearch = new URLSearchParams(location.search);
-        console.log(URLSearch)
-    }
-
-    getBookAndImage(){
+    getBookAndImage() {
         let responseData = null;
 
         $.ajax({
             async: false,
             type: "get",
-            url: `http//127.0.0.1:8000/api/admin/book/{$bookObj.bookCode}`,
-            data: "json",
+            url: `http://127.0.0.1:8000/api/admin/book/${bookObj.bookCode}`,
+            dataType: "json",
             success: response => {
                 responseData = response.data;
             },
-            error: error =>{
+            error: error => {
                 console.log(error);
             }
         });
+
         return responseData;
     }
 
-    loadBookAndImageData(){
-        const responseData = BookModifcationApi.getInstance().getCategories();
-
-        const modificationInputs = document.querySelectorAll("modification-input");
-        modificationInputs[0].value = responseData.bookMst.bookCode;
-        modificationInputs[1].value = responseData.bookMst.bookName;
-        modificationInputs[2].value = responseData.bookMst.author;
-        modificationInputs[3].value = responseData.bookMst.publisher;
-        modificationInputs[4].value = responseData.bookMst.publicationDate;
-        modificationInputs[5].value = responseData.bookMst.category
-        
-        const bookImg = document.querySelector.getInstance().getCategories();
-    }
-}
-class BookSearchApi {
-    static #instance = null;
-    static getInstance() {
-        if(this.#instance == null) {
-            this.#instance = new BookSearchApi();
-        }
-        return this.#instance;
-    }
-
-    getBookList(searchObj) {
-        let returnData = null;
-
-        $.ajax({
-            async: false,
-            type: "get",
-            url: "http://127.0.0.1:8000/api/admin/books",
-            data: searchObj,
-            dataType: "json",
-            success: response => {
-                console.log(response);
-                returnData = response.data;
-            },
-            error: error => {
-                console.log(error);
-            }
-        });
-
-        return returnData;
-    }
-
-    removeI
-    getBookTotalCount(searchObj) {
-        let returnData = null;
-
-        $.ajax({
-            async: false,
-            type: "get",
-            url: "http://127.0.0.1:8000/api/admin/books/totalcount",
-            data: {
-                "category" : searchObj.category,
-                "searchValue" : searchObj.searchValue
-            },
-            dataType: "json",
-            success: response => {
-                console.log(response);
-                returnData = response.data;
-            },
-            error: error => {
-                console.log(error);
-            }
-        });
-
-        return returnData;
-    }
-
     getCategories() {
-        let returnData = null;
+        let responseData = null;
 
         $.ajax({
             async: false,
@@ -127,145 +68,135 @@ class BookSearchApi {
             url: "http://127.0.0.1:8000/api/admin/categories",
             dataType: "json",
             success: response => {
-                console.log(response);
-                returnData = response.data;
+                responseData = response.data;
             },
             error: error => {
                 console.log(error);
             }
         });
 
-        return returnData;
+        return responseData;
     }
 
-    deleteBooks(deleteArray) {
-        let returnFlag = false;
+    modifyBook() {
+        let successFlag = false;
+
+        $.ajax({
+            async: false,
+            type: "put",
+            url: `http://127.0.0.1:8000/api/admin/book/${bookObj.bookCode}`,
+            contentType: "application/json",
+            data: JSON.stringify(bookObj),
+            dataType: "json",
+            success: response => {
+                successFlag = true;
+            },
+            error: error => {
+                console.log(error);
+                BookModificationService.getInstance().setErrors(error.responseJSON.data);
+            }
+        });
+
+        return successFlag;
+    }
+
+    removeImg() {
+        let successFlag = false;
 
         $.ajax({
             async: false,
             type: "delete",
-            url: "http://127.0.0.1:8000/api/admin/books",
-            contentType: "application/json",
-            data: JSON.stringify(
-                {
-                    userIds: deleteArray
-                }
-            ),
+            url: `http://127.0.0.1:8000/api/admin/book/${bookObj.bookCode}/image/${imgObj.imageId}`,
             dataType: "json",
             success: response => {
-                returnFlag = true;
+                successFlag = true;
+            },
+            error: error => {
+                console.log(error);
+            }
+        });
+
+        return successFlag;
+    }
+
+    registerImg() {
+
+        $.ajax({
+            async: false,
+            type: "post",
+            url: `http://127.0.0.1:8000/api/admin/book/${bookObj.bookCode}/images`,
+            encType: "multipart/form-data",
+            contentType: false,
+            processData: false,
+            data: fileObj.formData,
+            dataType: "json",
+            success: response => {
+                alert("도서 이미지 수정 완료.");
+                location.reload();
             },
             error: error => {
                 console.log(error);
             }
         })
-
-        return returnFlag;
     }
 
 }
 
-
-class BookService {
+class BookModificationService {
     static #instance = null;
     static getInstance() {
         if(this.#instance == null) {
-            this.#instance = new BookService();
+            this.#instance = new BookModificationService();
         }
         return this.#instance;
     }
 
-    loadBookList() {
-        const responseData = BookSearchApi.getInstance().getBookList(searchObj);
-        const checkAll = document.querySelector(".delete-checkall");
-        checkAll.checked = false;
-
-        const bookListBody = document.querySelector(".content-table tbody");
-        bookListBody.innerHTML = "";
-
-        responseData.forEach((data, index) => {
-            bookListBody.innerHTML += `
-                <tr>
-                    <td><input type="checkbox" class="delete-checkbox"></td>
-                    <td class="book-id">${data.bookId}</td>
-                    <td>${data.bookCode}</td>
-                    <td>${data.bookName}</td>
-                    <td>${data.author}</td>
-                    <td>${data.publisher}</td>
-                    <td>${data.publicationDate}</td>
-                    <td>${data.category}</td>
-                    <td>${data.rentalStatus == "Y" ? "대여중" : "대여가능"}</td>
-                    <a href="/templates/mook_modifidcation.html?bookCode=${data.bookCode}><td><i class="fa-solid fa-square-pen"></i></td></a>
-                </tr>
-            `;
-        });
-
-        this.loadSearchNumberList();
-        ComponentEvent.getInstance().addClickEventDeleteCheckbox();
+    setBookCode() {
+        const URLSearch = new URLSearchParams(location.search);
+        bookObj.bookCode = URLSearch.get("bookCode");
     }
 
-    loadSearchNumberList() {
-        const pageController = document.querySelector(".page-controller");
+    setBookObjValues() {
+        const modificationInputs = document.querySelectorAll(".modification-input");
 
-        const totalCount = BookSearchApi.getInstance().getBookTotalCount(searchObj);
-        const maxPageNumber = totalCount % searchObj.count == 0 
-                            ? Math.floor(totalCount / searchObj.count) 
-                            : Math.floor(totalCount / searchObj.count) + 1;
+        bookObj.bookCode = modificationInputs[0].value;
+        bookObj.bookName = modificationInputs[1].value;
+        bookObj.author = modificationInputs[2].value;
+        bookObj.publisher = modificationInputs[3].value;
+        bookObj.publicationDate = modificationInputs[4].value;
+        bookObj.category = modificationInputs[5].value;
+    }
 
-        pageController.innerHTML = `
-            <a href="javascript:void(0)" class="pre-button disabled">이전</a>
-            <ul class="page-numbers">
-            </ul>
-            <a href="javascript:void(0)" class="next-button disabled">다음</a>
-        `;
+    loadBookAndImageData() {
+        const responseData = BookModificationApi.getInstance().getBookAndImage();
 
-        if(searchObj.page != 1) {
-            const preButton = pageController.querySelector(".pre-button");
-            preButton.classList.remove("disabled");
-
-            preButton.onclick = () => {
-                searchObj.page--;
-                this.loadBookList();
-            }
+        if(responseData.bookMst == null) {
+            alert("해당 도서코드는 등록되지 않은 코드입니다.");
+            history.back();
+            return;
         }
 
-        if(searchObj.page != maxPageNumber) {
-            const nextButton = pageController.querySelector(".next-button");
-            nextButton.classList.remove("disabled");
+        const modificationInputs = document.querySelectorAll(".modification-input");
+        modificationInputs[0].value = responseData.bookMst.bookCode;
+        modificationInputs[1].value = responseData.bookMst.bookName;
+        modificationInputs[2].value = responseData.bookMst.author;
+        modificationInputs[3].value = responseData.bookMst.publisher;
+        modificationInputs[4].value = responseData.bookMst.publicationDate;
+        modificationInputs[5].value = responseData.bookMst.category;
 
-            nextButton.onclick = () => {
-                searchObj.page++;
-                this.loadBookList();
-            }
+        if(responseData.bookImage != null){
+            imgObj.imageId = responseData.bookImage.imageId;
+            imgObj.bookCode = responseData.bookImage.bookCode;
+            imgObj.saveName = responseData.bookImage.saveName;
+            imgObj.originName = responseData.bookImage.originName;
+
+            const bookImg = document.querySelector(".book-img");
+            bookImg.src = `http://127.0.0.1:8000/image/book/${responseData.bookImage.saveName}`;
         }
-
-        const startIndex = searchObj.page % 5 == 0 
-                        ? searchObj.page - 4 
-                        : searchObj.page - (searchObj.page % 5) + 1;
-        const endIndex = startIndex + 4 <= maxPageNumber ? startIndex + 4 : maxPageNumber;
-        const pageNumbers = document.querySelector(".page-numbers");
-
-        for(let i = startIndex; i <= endIndex; i++) {
-            pageNumbers.innerHTML += `
-                <a href="javascript:void(0)"class="page-button ${i == searchObj.page ? "disabled" : ""}"><li>${i}</li></a>
-            `;
-        }
-
-        const pageButtons = document.querySelectorAll(".page-button");
-        pageButtons.forEach(button => {
-
-            const pageNumber = button.textContent;
-            if(pageNumber != searchObj.page) {
-                button.onclick = () => {
-                    searchObj.page = pageNumber;
-                    this.loadBookList();
-                }
-            }
-        });
     }
 
     loadCategories() {
-        const responseData = BookSearchApi.getInstance().getCategories();
+        const responseData = BookModificationApi.getInstance().getCategories();
 
         const categorySelect = document.querySelector(".category-select");
         categorySelect.innerHTML = `<option value="">전체조회</option>`;
@@ -277,14 +208,53 @@ class BookService {
         });
     }
 
-    removeBooks(deleteArray) {
-        let successFlag = BookSearchApi.getInstance().deleteBooks(deleteArray);
-        if(successFlag) {
-            searchObj.page = 1;
-            this.loadBookList();
-        }
+    setErrors(errors) {
+        const errorMessages = document.querySelectorAll(".error-message");
+        this.clearErrors();
+
+        Object.keys(errors).forEach(key => {
+            if(key == "bookCode") {
+                errorMessages[0].innerHTML = errors[key];
+            }else if(key == "bookName") {
+                errorMessages[1].innerHTML = errors[key];
+            }else if(key == "category") {
+                errorMessages[5].innerHTML = errors[key];
+            }
+        })
+    }
+
+    clearErrors() {
+        const errorMessages = document.querySelectorAll(".error-message");
+        errorMessages.forEach(error => {
+            error.innerHTML = "";
+        })
     }
 }
+
+
+class ImgFileService {
+    static #instance = null;
+    static getInstance() {
+        if(this.#instance == null) {
+            this.#instance = new ImgFileService();
+        }
+        return this.#instance;
+    }
+
+    getImgPreview() {
+        const bookImg = document.querySelector(".book-img");
+
+        const reader = new FileReader();
+
+        reader.onload = (e) => {
+            bookImg.src = e.target.result;
+        }
+
+        reader.readAsDataURL(fileObj.files[0]);
+
+    }
+}
+
 
 class ComponentEvent {
     static #instance = null;
@@ -295,70 +265,96 @@ class ComponentEvent {
         return this.#instance;
     }
 
-    addClickEventSearchButton() {
-        const categorySelect = document.querySelector(".category-select");
-        const searchInput = document.querySelector(".search-input");
-        const searchButton = document.querySelector(".search-button");
+    addClickEventModificationButton() {
+        const modificationButton = document.querySelector(".modification-button");
 
-        searchButton.onclick = () => {
-            searchObj.category = categorySelect.value;
-            searchObj.searchValue = searchInput.value;
-            searchObj.page = 1;
-            BookService.getInstance().loadBookList();
-        }
+        modificationButton.onclick = () => {
+            BookModificationService.getInstance().setBookObjValues();
+            const successFlag = BookModificationApi.getInstance().modifyBook();
+            
+            if(!successFlag) {
+                return;
+            }
 
-        searchInput.onkeyup = () => {
-            if(window.event.keyCode == 13) {
-                searchButton.click();
+            BookModificationService.getInstance().clearErrors();
+
+            if(confirm("도서 이미지를 수정하시겠습니까?")) {
+                const imgAddButton = document.querySelector(".img-add-button");
+                const imgCancelButton = document.querySelector(".img-cancel-button");
+    
+                imgAddButton.disabled = false;
+                imgCancelButton.disabled = false;
+            }else {
+                location.reload();
             }
         }
+
     }
 
-    addClickEventDeleteButton() {
-        const deleteButton = document.querySelector(".delete-button");
-        deleteButton.onclick = () => {
-            if(confirm("정말로 삭제하시겠습니까?")) {
-                const deleteArray = new Array();
-    
-                const deleteCheckboxs = document.querySelectorAll(".delete-checkbox");
+    addClickEventImgAddButton() {
+        const imgFile = document.querySelector(".img-file");
+        const addButton = document.querySelector(".img-add-button");
 
-                deleteCheckboxs.forEach((deleteCheckbox, index) => {
-                    if(deleteCheckbox.checked) {
-                        const bookIds = document.querySelectorAll(".book-id");
-                        deleteArray.push(bookIds[index].textContent);
-                    }
-                });
-    
-                BookService.getInstance().removeBooks(deleteArray);
-            }
-        }
-    }
-    // 리스트 목록 삭제
-    addClickEventDeleteCheckAll() {
-        const checkAll = document.querySelector(".delete-checkall");
-        checkAll.onclick = () => {
-            const deleteCheckboxs = document.querySelectorAll(".delete-checkbox");
-            deleteCheckboxs.forEach(deleteCheckbox => {
-                deleteCheckbox.checked = checkAll.checked;
-            });
+        addButton.onclick = () => {
+            imgFile.click();
         }
     }
 
-    addClickEventDeleteCheckbox() {
-        const deleteCheckboxs = document.querySelectorAll(".delete-checkbox");
-        const checkAll = document.querySelector(".delete-checkall");
+    addChangeEventImgFile() {
+        const imgFile = document.querySelector(".img-file");
 
-        deleteCheckboxs.forEach(deleteCheckbox => {
-            deleteCheckbox.onclick = () => {
-                const deleteCheckedCheckboxs = document.querySelectorAll(".delete-checkbox:checked");
+        imgFile.onchange = () => {
+            const formData = new FormData(document.querySelector(".img-form"));
+            let changeFlag = false;
 
-                if(deleteCheckedCheckboxs.length == deleteCheckboxs.length) {
-                    checkAll.checked = true;
-                }else {
-                    checkAll.checked = false;
+            fileObj.files.pop();
+
+            formData.forEach(value => {
+                console.log(value);
+
+                if(value.size != 0) {
+                    fileObj.files.push(value);
+                    changeFlag = true;
                 }
+            });
+
+            if(changeFlag) {
+                const imgModificationButton = document.querySelector(".img-modification-button");
+                imgModificationButton.disabled = false;
+
+                ImgFileService.getInstance().getImgPreview();
+                imgFile.value = null;
             }
-        });
+
+        }
+    }
+
+    addClickEventImgModificationButton() {
+        const imgModificationButton = document.querySelector(".img-modification-button");
+
+        imgModificationButton.onclick = () => {
+            fileObj.formData.append("files", fileObj.files[0]);
+
+            let successFlag = true;
+
+            if(imgObj.imageId != null) {
+                successFlag = BookModificationApi.getInstance().removeImg();
+            }
+
+            if(successFlag) {
+                BookModificationApi.getInstance().registerImg();
+            }
+            
+        }
+    }
+
+    addClickEventImgCancelButton() {
+        const imgCancelButton = document.querySelector(".img-cancel-button");
+
+        imgCancelButton.onclick = () => {
+            if(confirm("정말로 이미지 수정을 취소하시겠습니까?")) {
+                location.reload();
+            }
+        }
     }
 }
-

@@ -195,7 +195,7 @@
         from
             book_image
         where
-            image_id = #{imageId}
+            book_code = #{bookCode}
 
     </select>
 
