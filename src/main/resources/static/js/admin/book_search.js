@@ -116,7 +116,6 @@ class BookSearchApi {
 
 }
 
-
 class BookService {
     static #instance = null;
     static getInstance() {
@@ -146,7 +145,7 @@ class BookService {
                     <td>${data.publicationDate}</td>
                     <td>${data.category}</td>
                     <td>${data.rentalStatus == "Y" ? "대여중" : "대여가능"}</td>
-                    <a href="/templates/mook_modifidcation.html?bookCode=${data.bookCode}><td><i class="fa-solid fa-square-pen"></i></td></a>
+                    <td><a href="/templates/admin/book_modification.html?bookCode=${data.bookCode}"><i class="fa-solid fa-square-pen"></i></td>
                 </tr>
             `;
         });
@@ -284,7 +283,7 @@ class ComponentEvent {
             }
         }
     }
-    // 리스트 목록 삭제
+
     addClickEventDeleteCheckAll() {
         const checkAll = document.querySelector(".delete-checkall");
         checkAll.onclick = () => {

@@ -16,9 +16,9 @@
             1 = 1
         <if test='searchValue != null and searchValue != ""'>
             and (
-                book_name like CONCAT('%', #{searchValue}, '%')
-                or	author like CONCAT('%', #{searchValue}, '%')
-                or	publisher like CONCAT('%', #{searchValue}, '%')
+            book_name like CONCAT('%', #{searchValue}, '%')
+            or	author like CONCAT('%', #{searchValue}, '%')
+            or	publisher like CONCAT('%', #{searchValue}, '%')
             )
         </if>
         <if test='category != null and category != ""'>
@@ -34,10 +34,10 @@
             bm.author,
             bm.publisher,
             bm.publication_date as publicationDate,
-            bm.category
+            bm.category,
             rd.rentalStatus
         from
-            book_mst
+            book_mst bm
             left outer join (select
                                 rd1.book_id,
                                 if(rd2.return_date is null, 'Y', 'N') as rentalStatus
@@ -53,15 +53,15 @@
             on(rd.book_id = bm.book_id)
         where
             1 = 1
-        <if test="searchValue != null">
-            and (
-                    bm.book_name like CONCAT('%', #{searchValue}, '%')
-                or	bm.author like CONCAT('%', #{searchValue}, '%')
-                or	bm.publisher like CONCAT('%', #{searchValue}, '%')
+        <if test='searchValue != null and searchValue != ""'>
+        and (
+                bm.book_name like CONCAT('%', #{searchValue}, '%')
+            or	bm.author like CONCAT('%', #{searchValue}, '%')
+            or	bm.publisher like CONCAT('%', #{searchValue}, '%')
             )
         </if>
-        <if test="category != null">
-            and	bm.category = #{category}
+        <if test='category != null and category != ""'>
+        and	bm.category = #{category}
         </if>
 
         order by
@@ -101,8 +101,7 @@
     </select>
 
     <insert id="saveBook" parameterType="com.korit.library.web.dto.BookReqDto">
-        insert into
-            book_mst
+        insert into book_mst
         values
             (0, #{bookCode}, #{bookName}, #{author}, #{publisher}, #{publicationDate}, #{category})
     </insert>
@@ -139,21 +138,19 @@
             book_code = #{bookCode}
     </delete>
 
-<!--도서 목록 리스트 삭제-->
     <delete id="deleteBooks" parameterType="list">
         delete
         from
             book_mst
         where
             book_id in
-        <foreach collection="list" item="bookId" open="(" close=")" separator=",">
-            #{bookId}
-        </foreach>
+            <foreach collection="list" item="bookId" open="(" close=")" separator=",">
+                #{bookId}
+            </foreach>
     </delete>
 
     <insert id="registerBookImages" parameterType="list">
-        insert into
-            book_image
+        insert into book_image
         values
             <foreach collection="list" item="file" separator=",">
                 (0, #{file.bookCode}, #{file.saveName}, #{file.originName})
@@ -206,5 +203,4 @@
         where
             image_id = #{imageId};
     </delete>
-
 </mapper>

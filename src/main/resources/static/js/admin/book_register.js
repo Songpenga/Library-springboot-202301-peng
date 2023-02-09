@@ -55,7 +55,7 @@ class BookRegisterApi {
         return successFlag;
     }
 
-    registerImg() { // 이미지 등록
+    registerImg() {
 
         $.ajax({
             async: false,
